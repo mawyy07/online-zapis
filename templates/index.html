@@ -12,7 +12,8 @@
 
     <form id="form">
         <label>Специалист</label>
-        <select id="doctor">
+        <select id="doctor" required>
+            <option value="">Выберите специалиста</option>
             <option>Терапевт</option>
             <option>Хирург</option>
             <option>Стоматолог</option>
@@ -27,67 +28,77 @@
         <button type="submit">Записаться</button>
     </form>
 
+    <p id="message"></p>
+
     <h2>Все записи</h2>
-    <ul id="list"></ul>
+    <div id="list" class="list"></div>
 </div>
 
 <script>
 const form = document.getElementById("form");
 const list = document.getElementById("list");
+const message = document.getElementById("message");
 
-// добавление записи
-form.addEventListener("submit", async function (e) {
+form.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    const doctor = doctorSelect.value;
+    const date = document.getElementById("date").value;
+    const time = document.getElementById("time").value;
 
     await fetch("/add", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            doctor: document.getElementById("doctor").value,
-            date: document.getElementById("date").value,
-            time: document.getElementById("time").value
-        })
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ doctor, date, time })
     });
 
+    message.textContent = "✅ Запись добавлена";
     form.reset();
     loadList();
 });
 
-// загрузка списка записей
+async function deleteRecord(index) {
+    await fetch("/delete", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ index })
+    });
+
+    message.textContent = "🗑 Запись удалена";
+    loadList();
+}
+
 async function loadList() {
     const res = await fetch("/list");
     const data = await res.json();
 
     list.innerHTML = "";
 
+    if (data.length === 0) {
+        list.innerHTML = "<p class='empty'>Записей пока нет</p>";
+        return;
+    }
+
     data.forEach((item, index) => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-            ${item.doctor} — ${item.date} ${item.time}
-            <button onclick="deleteRecord(${index})">❌</button>
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+            <div>
+                <strong>${item.doctor}</strong><br>
+                ${item.date} — ${item.time}
+            </div>
+            <button onclick="deleteRecord(${index})">✖</button>
         `;
-        list.appendChild(li);
+
+        list.appendChild(card);
     });
 }
 
-// удаление записи
-async function deleteRecord(index) {
-    await fetch("/delete", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ index: index })
-    });
-
-    loadList();
-}
-
-// загрузка при открытии страницы
 loadList();
 </script>
 
 </body>
 </html>
+
+

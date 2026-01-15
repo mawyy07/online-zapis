@@ -11,25 +11,26 @@ body {
 .container {
     background: white;
     padding: 25px;
-    border-radius: 12px;
     width: 320px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
-h1 {
+h1, h2 {
     text-align: center;
-    margin-bottom: 20px;
 }
 
 label {
     display: block;
-    margin-top: 10px;
+    margin-top: 12px;
 }
 
 input, select, button {
     width: 100%;
+    margin-top: 6px;
     padding: 8px;
-    margin-top: 5px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
 }
 
 button {
@@ -37,10 +38,44 @@ button {
     background: #4CAF50;
     color: white;
     border: none;
-    border-radius: 6px;
     cursor: pointer;
 }
 
 button:hover {
-    background: #45a049;
+    background: #43a047;
+}
+
+#message {
+    text-align: center;
+    margin: 10px 0;
+    color: green;
+}
+
+.list {
+    margin-top: 10px;
+}
+
+.card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f9f9f9;
+    padding: 10px;
+    margin-top: 8px;
+    border-radius: 8px;
+}
+
+.card button {
+    background: #e53935;
+    width: auto;
+    padding: 5px 10px;
+}
+
+.card button:hover {
+    background: #c62828;
+}
+
+.empty {
+    text-align: center;
+    color: #888;
 }
