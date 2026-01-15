@@ -7,25 +7,12 @@
 </head>
 <body>
 
-<!-- Блок авторизации -->
-{% if is_admin %}
-    <p style="text-align:center;">
-        Вы вошли как администратор |
-        <a href="/logout">Выйти</a>
-    </p>
-{% else %}
-    <p style="text-align:center;">
-        <a href="/login">Вход администратора</a>
-    </p>
-{% endif %}
-
 <div class="container">
     <h1>Онлайн-запись к врачу</h1>
 
     <form id="form">
         <label>Специалист</label>
-        <select id="doctor" required>
-            <option value="">Выберите специалиста</option>
+        <select id="doctor">
             <option>Терапевт</option>
             <option>Хирург</option>
             <option>Стоматолог</option>
@@ -40,31 +27,26 @@
         <button type="submit">Записаться</button>
     </form>
 
+    <a href="/login" class="admin-link">Вход администратора</a>
+
     <h2>Все записи</h2>
     <ul id="list"></ul>
 </div>
 
-<!-- Передаём в JS: админ или нет -->
 <script>
-    window.isAdmin = {{ 'true' if is_admin else 'false' }};
-</script>
-
-<script>
-const API_BASE = window.location.origin;
 const form = document.getElementById("form");
 const list = document.getElementById("list");
 
-// добавление записи
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    await fetch(`${API_BASE}/add`, {
+    await fetch("/add", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-            doctor: document.getElementById("doctor").value,
-            date: document.getElementById("date").value,
-            time: document.getElementById("time").value
+            doctor: doctor.value,
+            date: date.value,
+            time: time.value
         })
     });
 
@@ -72,39 +54,17 @@ form.addEventListener("submit", async (e) => {
     loadList();
 });
 
-// загрузка списка
 async function loadList() {
-    const res = await fetch(`${API_BASE}/list`);
+    const res = await fetch("/list");
     const data = await res.json();
-
     list.innerHTML = "";
-
-    if (data.length === 0) {
-        list.innerHTML = "<li>Записей пока нет</li>";
-        return;
-    }
-
-    data.forEach((item, index) => {
+    data.forEach(item => {
         const li = document.createElement("li");
-        li.innerHTML = `
-            ${item.doctor} — ${item.date} ${item.time}
-            ${window.isAdmin ? `<button onclick="deleteRecord(${index})">❌</button>` : ""}
-        `;
+        li.textContent = `${item.doctor} — ${item.date} ${item.time}`;
         list.appendChild(li);
     });
 }
 
-// удаление записи (только для админа)
-async function deleteRecord(index) {
-    await fetch(`${API_BASE}/delete`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ index })
-    });
-    loadList();
-}
-
-// загрузка при старте
 loadList();
 </script>
 

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Админ-панель</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Админ-панель</h1>
+    <a href="/logout">Выйти</a>
+
+    <ul>
+        {% for r in records %}
+        <li>{{ r.doctor }} — {{ r.date }} {{ r.time }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+</body>
+</html>
