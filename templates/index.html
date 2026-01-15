@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Онлайн-запись к врачу</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h1>Онлайн-запись к врачу</h1>
+
+    <form id="form">
+        <label>Специалист</label>
+        <select id="doctor">
+            <option>Терапевт</option>
+            <option>Хирург</option>
+            <option>Стоматолог</option>
+        </select>
+
+        <label>Дата</label>
+        <input type="date" id="date" required>
+
+        <label>Время</label>
+        <input type="time" id="time" required>
+
+        <button type="submit">Записаться</button>
+    </form>
+
+    <h2>Все записи</h2>
+    <ul id="list"></ul>
+</div>
+
+<script>
+const form = document.getElementById("form");
+const list = document.getElementById("list");
+
+// добавление записи
+form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    await fetch("/add", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            doctor: document.getElementById("doctor").value,
+            date: document.getElementById("date").value,
+            time: document.getElementById("time").value
+        })
+    });
+
+    form.reset();
+    loadList();
+});
+
+// загрузка списка записей
+async function loadList() {
+    const res = await fetch("/list");
+    const data = await res.json();
+
+    list.innerHTML = "";
+
+    data.forEach((item, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            ${item.doctor} — ${item.date} ${item.time}
+            <button onclick="deleteRecord(${index})">❌</button>
+        `;
+        list.appendChild(li);
+    });
+}
+
+// удаление записи
+async function deleteRecord(index) {
+    await fetch("/delete", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ index: index })
+    });
+
+    loadList();
+}
+
+// загрузка при открытии страницы
+loadList();
+</script>
+
+</body>
+</html>
