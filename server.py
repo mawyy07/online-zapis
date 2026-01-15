@@ -6,26 +6,24 @@ app = Flask(__name__)
 
 DATA_FILE = "records.json"
 
-# ---------- функции ----------
 def load_records():
-    if not os.path.exists(DATA_FILE):
-        return []
-    with open(DATA_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return []
 
-def save_records(records):
+def save_records(data):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(records, f, ensure_ascii=False, indent=2)
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
-# ---------- маршруты ----------
 @app.route("/")
 def index():
     return render_template("index.html")
 
 @app.route("/add", methods=["POST"])
 def add():
-    records = load_records()
     data = request.get_json()
+    records = load_records()
     records.append(data)
     save_records(records)
     return jsonify({"status": "ok"})
@@ -36,15 +34,15 @@ def get_list():
 
 @app.route("/delete", methods=["POST"])
 def delete():
-    records = load_records()
-    index = request.get_json().get("index")
+    data = request.get_json()
+    index = data.get("index")
 
+    records = load_records()
     if index is not None and 0 <= index < len(records):
         records.pop(index)
         save_records(records)
-        return jsonify({"status": "deleted"})
 
-    return jsonify({"status": "error"})
+    return jsonify({"status": "deleted"})
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
