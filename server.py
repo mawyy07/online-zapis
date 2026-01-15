@@ -3,7 +3,7 @@ import json
 import os
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"
+app.secret_key = "secret123"
 
 DATA_FILE = "records.json"
 
@@ -24,31 +24,30 @@ def index():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        if request.form["username"] == "admin" and request.form["password"] == "admin123":
+        if request.form.get("username") == "admin" and request.form.get("password") == "admin123":
             session["admin"] = True
-            return redirect(url_for("admin"))
+            return redirect("/admin")
         return "Неверный логин или пароль"
     return render_template("login.html")
 
 @app.route("/admin")
 def admin():
     if not session.get("admin"):
-        return redirect(url_for("login"))
-    records = load_records()
-    return render_template("admin.html", records=records)
+        return redirect("/login")
+    return render_template("admin.html", records=load_records())
 
 @app.route("/logout")
 def logout():
-    session.pop("admin", None)
-    return redirect(url_for("index"))
+    session.clear()
+    return redirect("/")
 
 @app.route("/add", methods=["POST"])
 def add():
     records = load_records()
-    data = request.json
+    data = request.get_json()
     records.append(data)
     save_records(records)
-    return jsonify({"status": "ok"})
+    return jsonify({"ok": True})
 
 @app.route("/list")
 def get_list():
@@ -61,8 +60,8 @@ def delete():
     if index is not None and 0 <= index < len(records):
         records.pop(index)
         save_records(records)
-        return jsonify({"status": "deleted"})
-    return jsonify({"status": "error"})
+        return jsonify({"ok": True})
+    return jsonify({"ok": False})
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
