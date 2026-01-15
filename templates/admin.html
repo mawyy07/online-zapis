@@ -12,11 +12,26 @@
     <a href="/logout">Выйти</a>
 
     <ul>
-        {% for r in records %}
-        <li>{{ r.doctor }} — {{ r.date }} {{ r.time }}</li>
+        {% for item in records %}
+        <li>
+            {{ item.doctor }} — {{ item.date }} {{ item.time }}
+            <button onclick="deleteRecord({{ loop.index0 }})">❌</button>
+        </li>
         {% endfor %}
     </ul>
 </div>
+
+<script>
+async function deleteRecord(index) {
+    await fetch("/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ index })
+    });
+
+    location.reload();
+}
+</script>
 
 </body>
 </html>
