@@ -3,7 +3,7 @@ import json
 import os
 
 app = Flask(__name__)
-app.secret_key = "super_secret_key"  # для сессий
+app.secret_key = "super_secret_key_123"  # ОБЯЗАТЕЛЬНО для сессий
 
 DATA_FILE = "records.json"
 
@@ -12,6 +12,7 @@ ADMIN_LOGIN = "admin"
 ADMIN_PASSWORD = "1234"
 
 
+# ---------- работа с файлами ----------
 def load_records():
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r", encoding="utf-8") as f:
@@ -24,9 +25,13 @@ def save_records(data):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
+# ---------- маршруты ----------
 @app.route("/")
 def index():
-    return render_template("index.html", is_admin=session.get("admin", False))
+    return render_template(
+        "index.html",
+        is_admin=session.get("admin", False)
+    )
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -80,6 +85,8 @@ def delete():
     return jsonify({"status": "deleted"})
 
 
+# ---------- запуск ----------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
